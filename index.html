@@ -1,29 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Roblox ID Converter</title>
-  <link rel="stylesheet" href="style.css"/>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Roblox Place → GameId Finder</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b0f19;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.card {
+    background: #111827;
+    padding: 25px;
+    border-radius: 16px;
+    width: 360px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+}
+
+h1 {
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #1f2937;
+    color: white;
+    outline: none;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #3b82f6;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background: #2563eb;
+}
+
+.result {
+    margin-top: 15px;
+    background: #1f2937;
+    padding: 10px;
+    border-radius: 10px;
+    display: none;
+}
+
+.error {
+    color: #f87171;
+    margin-top: 10px;
+    font-size: 13px;
+}
+</style>
 </head>
 
 <body>
-  <div class="bg"></div>
 
-  <div class="card">
-    <h1>Roblox Place → Game ID</h1>
-    <p class="sub">Convert Place IDs into Universe (Game) IDs instantly</p>
+<div class="card">
+    <h1>Place ID → Game ID</h1>
 
-    <div class="input-row">
-      <input id="placeId" placeholder="Enter Place ID..." />
-      <button onclick="convert()">Convert</button>
+    <input id="placeId" placeholder="Enter Place ID" />
+
+    <button onclick="getGameId()">Get Game ID</button>
+
+    <div class="result" id="resultBox">
+        Universe ID: <span id="result"></span>
     </div>
 
-    <div id="loading" class="loading hidden"></div>
+    <div class="error" id="error"></div>
+</div>
 
-    <div id="result" class="result hidden"></div>
-  </div>
+<script>
+async function getGameId() {
+    const placeId = document.getElementById("placeId").value.trim();
+    const error = document.getElementById("error");
+    const box = document.getElementById("resultBox");
 
-  <script src="script.js"></script>
+    error.textContent = "";
+    box.style.display = "none";
+
+    if (!placeId) {
+        error.textContent = "Enter a Place ID";
+        return;
+    }
+
+    try {
+        const res = await fetch(`/api/gameid/${placeId}`);
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error);
+
+        document.getElementById("result").textContent = data.universeId;
+        box.style.display = "block";
+
+    } catch (err) {
+        error.textContent = "Failed to fetch Game ID.";
+    }
+}
+</script>
+
 </body>
 </html>
