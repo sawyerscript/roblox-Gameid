@@ -1,119 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Roblox Place → GameId Finder</title>
-
+<meta charset="UTF-8">
+<title>Place → GameId Finder</title>
 <style>
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #0b0f19;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    margin:0;
+    background:#0b0f19;
+    color:white;
+    font-family:Arial;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
 }
-
-.card {
-    background: #111827;
-    padding: 25px;
-    border-radius: 16px;
-    width: 360px;
-    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+.box {
+    background:#111827;
+    padding:25px;
+    border-radius:14px;
+    width:350px;
 }
-
-h1 {
-    font-size: 18px;
-    text-align: center;
-    margin-bottom: 15px;
+input, button {
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:8px;
+    border:none;
 }
-
 input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    background: #1f2937;
-    color: white;
-    outline: none;
+    background:#1f2937;
+    color:white;
 }
-
 button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 10px;
-    background: #3b82f6;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
+    background:#3b82f6;
+    color:white;
+    cursor:pointer;
 }
-
 button:hover {
-    background: #2563eb;
+    background:#2563eb;
 }
-
 .result {
-    margin-top: 15px;
-    background: #1f2937;
-    padding: 10px;
-    border-radius: 10px;
-    display: none;
+    margin-top:15px;
+    padding:10px;
+    background:#1f2937;
+    border-radius:8px;
+    display:none;
 }
-
 .error {
-    color: #f87171;
-    margin-top: 10px;
-    font-size: 13px;
+    color:#f87171;
+    margin-top:10px;
+    font-size:13px;
 }
 </style>
 </head>
-
 <body>
 
-<div class="card">
-    <h1>Place ID → Game ID</h1>
+<div class="box">
+<h2>Place → GameId</h2>
 
-    <input id="placeId" placeholder="Enter Place ID" />
+<input id="placeId" placeholder="Enter Place ID">
 
-    <button onclick="getGameId()">Get Game ID</button>
+<button onclick="fetchId()">Get Game ID</button>
 
-    <div class="result" id="resultBox">
-        Universe ID: <span id="result"></span>
-    </div>
+<div class="result" id="result">
+Universe ID: <span id="uid"></span>
+</div>
 
-    <div class="error" id="error"></div>
+<div class="error" id="err"></div>
 </div>
 
 <script>
-async function getGameId() {
-    const placeId = document.getElementById("placeId").value.trim();
-    const error = document.getElementById("error");
-    const box = document.getElementById("resultBox");
+async function fetchId() {
+    const id = document.getElementById("placeId").value.trim();
+    const err = document.getElementById("err");
+    const resBox = document.getElementById("result");
 
-    error.textContent = "";
-    box.style.display = "none";
+    err.textContent = "";
+    resBox.style.display = "none";
 
-    if (!placeId) {
-        error.textContent = "Enter a Place ID";
+    if (!id) {
+        err.textContent = "Enter a Place ID";
         return;
     }
 
     try {
-        const res = await fetch(`/api/gameid/${placeId}`);
+        // PUBLIC CORS PROXY (works for quick testing)
+        const api = `https://api.allorigins.win/raw?url=` +
+        encodeURIComponent(`https://apis.roblox.com/universes/v1/places/${id}/universe`);
+
+        const res = await fetch(api);
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.error);
+        document.getElementById("uid").textContent = data.universeId;
+        resBox.style.display = "block";
 
-        document.getElementById("result").textContent = data.universeId;
-        box.style.display = "block";
-
-    } catch (err) {
-        error.textContent = "Failed to fetch Game ID.";
+    } catch (e) {
+        err.textContent = "Failed to fetch GameId (invalid ID or API blocked)";
     }
 }
 </script>
